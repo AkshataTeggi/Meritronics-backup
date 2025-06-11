@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import MainLayout from "@/components/main-layout"
-import StationModule from "@/components/station/station-module"
 import { Button } from "@/components/ui/button"
 import { Grid, List } from "lucide-react"
 
