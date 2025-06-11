@@ -1,24 +1,45 @@
 
 export interface Mpi {
   id: string
+  revision?: string
+  effectiveDate?: string
+  purpose?: string
+  scope?: string
+  equipment?: string
+  materials?: string
+  responsibilities?: string
+  procedure?: string
+  safety?: string
+  processControl?: string
   stationName: string
-  processName: string
-  parameters?: Record<string, any>
-  specifications?: Record<string, any>
   createdAt?: string
   updatedAt?: string
 }
 
 export interface CreateMpiDto {
+  revision?: string
+  effectiveDate?: string
+  purpose?: string
+  scope?: string
+  equipment?: string
+  materials?: string
+  responsibilities?: string
+  procedure?: string
+  safety?: string
+  processControl?: string
   stationName: string
-  processName: string
-  parameters?: Record<string, any>
-  specifications?: Record<string, any>
 }
 
 export interface UpdateMpiDto {
+  revision?: string
+  effectiveDate?: string
+  purpose?: string
+  scope?: string
+  equipment?: string
+  materials?: string
+  responsibilities?: string
+  procedure?: string
+  safety?: string
+  processControl?: string
   stationName?: string
-  processName?: string
-  parameters?: Record<string, any>
-  specifications?: Record<string, any>
 }

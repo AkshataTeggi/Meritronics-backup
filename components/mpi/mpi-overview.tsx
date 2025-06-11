@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,14 +11,11 @@ import { stationApi } from "@/lib/stations"
 import { Mpi } from "@/types/mpi"
 import { Station } from "@/types/station"
 
-interface MpiOverviewProps {
-  onNavigate: (page: string) => void
-}
-
-export default function MpiOverview({ onNavigate }: MpiOverviewProps) {
+export default function MpiOverview() {
   const [mpis, setMpis] = useState<Mpi[]>([])
   const [stations, setStations] = useState<Station[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,12 +43,16 @@ export default function MpiOverview({ onNavigate }: MpiOverviewProps) {
 
   const stationMpiCounts = getStationMpiCount()
 
+  const handleNavigation = (path: string) => {
+    router.push(path)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">MPI Overview</h1>
         <Button
-          onClick={() => onNavigate("create-mpi")}
+          onClick={() => handleNavigation("/dashboard/mpi/create")}
           className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -119,7 +121,7 @@ export default function MpiOverview({ onNavigate }: MpiOverviewProps) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-[hsl(var(--primary))]">Recent MPIs</CardTitle>
-              <Button variant="outline" onClick={() => onNavigate("mpi-list")}>
+              <Button variant="outline" onClick={() => handleNavigation("/dashboard/mpi/list")}>
                 View All
               </Button>
             </div>
@@ -132,7 +134,7 @@ export default function MpiOverview({ onNavigate }: MpiOverviewProps) {
                 <Settings className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p className="text-lg font-medium mb-2">No MPIs found</p>
                 <p className="text-sm text-gray-400 mb-4">Create your first Manufacturing Process Instruction</p>
-                <Button onClick={() => onNavigate("create-mpi")}>
+                <Button onClick={() => handleNavigation("/dashboard/mpi/create")}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create MPI
                 </Button>

@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Factory, Edit, Trash2, RefreshCw } from "lucide-react"
-import { Station } from "@/types/station"
 import { stationApi } from "@/lib/stations"
+import { Station } from "@/types/station"
 
 export default function StationList() {
   const [stations, setStations] = useState<Station[]>([])
@@ -55,7 +55,7 @@ export default function StationList() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-[hsl(var(--primary))]">

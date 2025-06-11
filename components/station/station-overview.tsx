@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,13 +9,10 @@ import { Factory, Plus, TrendingUp, AlertTriangle } from "lucide-react"
 import { stationApi } from "@/lib/stations"
 import { Station } from "@/types/station"
 
-interface StationsOverviewProps {
-  onNavigate: (page: string) => void
-}
-
-export default function StationsOverview({ onNavigate }: StationsOverviewProps) {
+export default function StationsOverview() {
   const [stations, setStations] = useState<Station[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchStations = async () => {
@@ -34,12 +32,16 @@ export default function StationsOverview({ onNavigate }: StationsOverviewProps) 
   const maintenanceStations = stations.filter((s) => s.status === "maintenance").length
   const inactiveStations = stations.filter((s) => s.status === "inactive").length
 
+  const handleNavigation = (path: string) => {
+    router.push(path)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">Stations Overview</h1>
         <Button
-          onClick={() => onNavigate("create-station")}
+          onClick={() => handleNavigation("/dashboard/stations/create")}
           className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -97,7 +99,7 @@ export default function StationsOverview({ onNavigate }: StationsOverviewProps) 
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-[hsl(var(--primary))]">Recent Stations</CardTitle>
-            <Button variant="outline" onClick={() => onNavigate("station-list")}>
+            <Button variant="outline" onClick={() => handleNavigation("/dashboard/stations/list")}>
               View All
             </Button>
           </div>
@@ -110,7 +112,7 @@ export default function StationsOverview({ onNavigate }: StationsOverviewProps) 
               <Factory className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg font-medium mb-2">No stations found</p>
               <p className="text-sm text-gray-400 mb-4">Get started by creating your first station</p>
-              <Button onClick={() => onNavigate("create-station")}>
+              <Button onClick={() => handleNavigation("/dashboard/stations/create")}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Station
               </Button>
