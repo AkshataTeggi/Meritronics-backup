@@ -9,11 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { mpiApi, stationApi } from "@/lib/api"
+import type { Mpi, Station, UpdateMpiDto } from "@/lib/types"
 import { Settings, Save, ArrowLeft } from "lucide-react"
-import { mpiApi } from "@/lib/mpi"
-import { stationApi } from "@/lib/stations"
-import { Mpi, UpdateMpiDto } from "@/types/mpi"
-import { Station } from "@/types/station"
 
 interface EditMpiFormProps {
   mpiId: string
@@ -115,7 +113,7 @@ export default function EditMpiForm({ mpiId }: EditMpiFormProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-full">
       <div className="flex items-center gap-4">
         <Button variant="outline" onClick={() => router.push("/dashboard/mpi")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -124,7 +122,7 @@ export default function EditMpiForm({ mpiId }: EditMpiFormProps) {
         <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">Edit MPI</h1>
       </div>
 
-      <Card className="max-w-2xl">
+      <Card className="w-full max-w-6xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-[hsl(var(--primary))]">
             <Settings className="h-5 w-5" />

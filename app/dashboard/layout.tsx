@@ -24,8 +24,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardSidebar onLogout={handleLogout} username={username} onToggle={handleSidebarToggle} />
-      <main className={`flex-1 p-6 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"} w-full`}>
-        {children}
+      <main
+        className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"} w-[calc(100%-${sidebarCollapsed ? "4rem" : "16rem"})] min-h-screen overflow-y-auto`}
+      >
+        <div className="p-6 max-w-full">{children}</div>
       </main>
     </div>
   )

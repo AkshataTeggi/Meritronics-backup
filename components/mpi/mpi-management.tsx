@@ -27,6 +27,7 @@ export default function MpiManagement() {
     setError("")
     try {
       const [mpiList, stationList] = await Promise.all([mpiApi.findAll(), stationApi.findAll()])
+      console.log("MPI fetching response", mpiList)
       setMpis(mpiList)
       setFilteredMpis(mpiList)
       setStations(stationList)
@@ -46,7 +47,7 @@ export default function MpiManagement() {
       const filtered = mpis.filter(
         (mpi) =>
           mpi.stationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          mpi.processName.toLowerCase().includes(searchTerm.toLowerCase()),
+          (mpi.purpose && mpi.purpose.toLowerCase().includes(searchTerm.toLowerCase())),
       )
       setFilteredMpis(filtered)
     } else {
@@ -167,7 +168,7 @@ export default function MpiManagement() {
               <Input
                 id="search"
                 type="text"
-                placeholder="Search by station name or process name..."
+                placeholder="Search by station name or purpose..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-9"
@@ -198,27 +199,25 @@ export default function MpiManagement() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{mpi.processName}</h3>
-                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                          {mpi.stationName}
-                        </Badge>
+                        <h3 className="font-semibold text-lg">{mpi.stationName}</h3>
+                        {mpi.revision && (
+                          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                            {mpi.revision}
+                          </Badge>
+                        )}
                       </div>
                       <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        {mpi.parameters && Object.keys(mpi.parameters).length > 0 && (
-                          <div>
-                            <span className="font-medium">Parameters:</span>
-                            <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-                              {JSON.stringify(mpi.parameters, null, 2)}
-                            </pre>
-                          </div>
+                        {mpi.purpose && (
+                          <p>
+                            <span className="font-medium">Purpose:</span> {mpi.purpose.substring(0, 100)}
+                            {mpi.purpose.length > 100 ? "..." : ""}
+                          </p>
                         )}
-                        {mpi.specifications && Object.keys(mpi.specifications).length > 0 && (
-                          <div>
-                            <span className="font-medium">Specifications:</span>
-                            <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-                              {JSON.stringify(mpi.specifications, null, 2)}
-                            </pre>
-                          </div>
+                        {mpi.effectiveDate && (
+                          <p>
+                            <span className="font-medium">Effective Date:</span>{" "}
+                            {new Date(mpi.effectiveDate).toLocaleDateString()}
+                          </p>
                         )}
                         {mpi.createdAt && (
                           <p>

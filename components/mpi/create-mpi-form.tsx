@@ -10,7 +10,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Settings, Save, RotateCcw, ArrowLeft } from "lucide-react"
+import { mpiApi } from "@/lib/mpi"
 import { stationApi } from "@/lib/stations"
+import { CreateMpiDto } from "@/types/mpi"
+import { Station } from "@/types/station"
 
 export default function CreateMpiForm() {
   const [formData, setFormData] = useState<CreateMpiDto>({
@@ -82,7 +85,7 @@ export default function CreateMpiForm() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-full">
       <div className="flex items-center gap-4">
         <Button variant="outline" onClick={() => router.push("/dashboard/mpi")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -91,7 +94,7 @@ export default function CreateMpiForm() {
         <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">Create New MPI</h1>
       </div>
 
-      <Card className="max-w-4xl">
+      <Card className="w-full max-w-6xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-[hsl(var(--primary))]">
             <Settings className="h-5 w-5" />

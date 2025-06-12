@@ -1,6 +1,6 @@
 import { CreateStationDto, Station, UpdateStationDto } from "@/types/station"
+import { API_BASE_URL } from "./constants"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
 // Station API functions
 export const stationApi = {
