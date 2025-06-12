@@ -1,11 +1,12 @@
 import EditStationForm from "@/components/station/edit-station-form"
 
 interface EditStationPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function EditStationPage({ params }: EditStationPageProps) {
-  return <EditStationForm stationId={params.id} />
+export default async function EditStationPage({ params }: EditStationPageProps) {
+  const { id } = await params
+  return <EditStationForm stationId={id} />
 }

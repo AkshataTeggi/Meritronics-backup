@@ -4,15 +4,18 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Factory, Plus, Edit, Trash2, RefreshCw, TrendingUp, AlertTriangle } from "lucide-react"
+import { Factory, Plus, Edit, Trash2, TrendingUp, AlertTriangle, Eye, List, LayoutGrid } from "lucide-react"
+import { StationIcon } from "./station-icon"
 import { stationApi } from "@/lib/stations"
 import { Station } from "@/types/station"
+
+type ViewMode = "list" | "grid"
 
 export default function StationsManagement() {
   const [stations, setStations] = useState<Station[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
+  const [viewMode, setViewMode] = useState<ViewMode>("list")
   const router = useRouter()
 
   const fetchStations = async () => {
@@ -56,10 +59,121 @@ export default function StationsManagement() {
     }
   }
 
-  // Since status isn't in the API response, we'll use a placeholder count
-  const activeStations = stations.length > 0 ? Math.ceil(stations.length * 0.6) : 0
-  const maintenanceStations = stations.length > 0 ? Math.floor(stations.length * 0.2) : 0
-  const inactiveStations = stations.length > 0 ? Math.floor(stations.length * 0.2) : 0
+  const getStationId = (station: Station): string => {
+    // Use the generated database ID (which is what the backend expects)
+    const id = station.id || station.stationId
+    console.log("Station ID for navigation:", {
+      station: station.stationName,
+      id: id,
+      stationId: station.stationId,
+      dbId: station.id,
+    })
+    return id
+  }
+
+  const handleViewStation = (station: Station) => {
+    const id = getStationId(station)
+    console.log("Navigating to station view:", id)
+    router.push(`/dashboard/stations/${id}`)
+  }
+
+  const handleEditStation = (station: Station) => {
+    const id = getStationId(station)
+    console.log("Navigating to station edit:", id)
+    router.push(`/dashboard/stations/edit/${id}`)
+  }
+
+  const handleDeleteStation = async (station: Station) => {
+    const id = getStationId(station)
+    console.log("Deleting station:", id)
+    await handleDelete(id)
+  }
+
+  // Calculate statistics from actual data
+  const activeStations = stations.filter((s) => s.status === "active").length
+  const maintenanceStations = stations.filter((s) => s.status === "maintenance").length
+  const inactiveStations = stations.filter((s) => s.status === "inactive").length
+
+  const renderListView = () => (
+    <div className="space-y-2">
+      {stations.map((station) => (
+        <div
+          key={station.id || station.stationId}
+          className="flex items-center justify-between p-4 rounded-lg border hover:shadow-sm transition-shadow"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-full">
+              <StationIcon stationName={station.stationName} className="h-6 w-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">{station.stationName}</h3>
+              <p className="text-sm text-gray-500">
+                ID: {station.stationId} 
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => handleViewStation(station)}>
+              <Eye className="h-4 w-4 mr-1" />
+              View
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleEditStation(station)}>
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDeleteStation(station)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
+  const renderGridView = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {stations.map((station) => (
+        <Card key={station.id || station.stationId} className="hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-full">
+                <StationIcon stationName={station.stationName} className="h-8 w-8 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">{station.stationName}</h3>
+                <p className="text-sm text-gray-500">ID: {station.stationId}</p>
+              </div>
+              <div className="flex gap-2 w-full">
+                <Button variant="outline" size="sm" onClick={() => handleViewStation(station)} className="flex-1">
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEditStation(station)}>
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDeleteStation(station)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -127,12 +241,26 @@ export default function StationsManagement() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-[hsl(var(--primary))]">
               <Factory className="h-5 w-5" />
-              All Stations
+              Stations
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={fetchStations} disabled={isLoading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4 mr-2" />
+                List
+              </Button>
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Grid
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -146,71 +274,10 @@ export default function StationsManagement() {
             <div className="text-center py-8 text-gray-500">Loading stations...</div>
           ) : stations.length === 0 ? (
             <div className="text-center py-8 text-gray-500">No stations found</div>
+          ) : viewMode === "list" ? (
+            renderListView()
           ) : (
-            <div className="grid gap-4">
-              {stations.map((station) => (
-                <div
-                  key={station.id}
-                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{station.stationName}</h3>
-                        {station.processFlow && (
-                          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                            Has Process Flow
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                        <p>
-                          <span className="font-medium">Station ID:</span> {station.stationId}
-                        </p>
-                        {station.programName && (
-                          <p>
-                            <span className="font-medium">Program:</span> {station.programName}
-                          </p>
-                        )}
-                        {station.labelLocation && (
-                          <p>
-                            <span className="font-medium">Label Location:</span> {station.labelLocation}
-                          </p>
-                        )}
-                        {station.boardDirectionFirstSide && (
-                          <p>
-                            <span className="font-medium">Board Direction:</span> {station.boardDirectionFirstSide}
-                          </p>
-                        )}
-                        {station.createdAt && (
-                          <p>
-                            <span className="font-medium">Created:</span>{" "}
-                            {new Date(station.createdAt).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/dashboard/stations/edit/${station.stationId}`)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(station.stationId)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            renderGridView()
           )}
         </CardContent>
       </Card>

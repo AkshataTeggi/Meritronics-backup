@@ -127,7 +127,7 @@ export default function StationsOverview() {
                   <div className="flex items-center gap-3">
                     <Factory className="h-5 w-5 text-[hsl(var(--primary))]" />
                     <div>
-                      <p className="font-medium">{station.name}</p>
+                      <p className="font-medium">{station.stationName}</p>
                       <p className="text-sm text-gray-500">ID: {station.stationId}</p>
                     </div>
                   </div>

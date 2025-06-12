@@ -1,105 +1,145 @@
-// Enum types to match your Prisma schema
-export type LabelLocation = "TOP" | "BOTTOM" | "LEFT" | "RIGHT"
-export type BoardDirection = "LEFT_TO_RIGHT" | "RIGHT_TO_LEFT" | "FRONT_TO_BACK" | "BACK_TO_FRONT"
-export type PcbBoardSide = "TOP" | "BOTTOM" | "BOTH"
+import { ReactNode } from "react"
+
+export type SpecificationType = string
+
+
+export interface FileUpload {
+  id: string
+  name: string
+  size: number
+  url: string
+  createdAt: string
+  flowChartId?: string
+  documentationId?: string
+}
+
+export interface Specification {
+  id: string
+  name: string
+  slug: string
+  type: SpecificationType
+  isRequired: boolean
+  isActive: boolean
+  suggestions: string[]
+  createdAt: string
+  updatedAt: string
+  isDeleted: boolean
+  stationId: string
+}
+
+export interface TechnicalSpecification {
+  id: number
+  name: string
+  value: string
+  stationId: string
+}
+
+export interface FlowChart {
+  id: string
+  content: string
+  stationId: string
+  createdAt: string
+  updatedAt: string
+  files: FileUpload[]
+}
+
+export interface Documentation {
+  id: string
+  content: string
+  stationId: string
+  createdAt: string
+  updatedAt: string
+  files: FileUpload[]
+}
 
 export interface Station {
-  id: number
+  id: string
   stationId: string
   stationName: string
-  labelLocation?: LabelLocation | null
-  programName?: string | null
-  labelFormat?: string | null
-  labelRange?: string | null
-  boardDirectionFirstSide?: BoardDirection | null
-  boardDirectionSecondSide?: BoardDirection | null
-  pcbBoardSide?: PcbBoardSide | null
-  stencilName?: string | null
-  stencilRevision?: string | null
-  pwb?: string | null
-  pwbRevision?: string | null
-  stencilThickness?: string | null
-  printingMaterial?: string | null
-  solderPasteType?: string | null
-  squeegeeType?: string | null
-  squeegeeSettingsId?: number | null
-  processFlowId?: number | null
-  // New fields for documentation and specifications
-  documentation?: string | null
-  flowCharts?: string | null
-  specifications?: string | null
-  createdAt?: string
-  updatedAt?: string
-  processFlow?: ProcessFlow | null
-  squeegeeSettings?: SqueegeeSettings | null
+  status: string
+  stationCode?: string // Changed from staticCode
+  description?: string
+  location?: string
+  operator?: string
+  addStation?: string
+  createdAt: string
+  updatedAt: string
+  isDeleted: boolean
+  specifications: Specification[]
+  technicalSpecifications: TechnicalSpecification[]
+  flowCharts: FlowChart[]
+  documentation: Documentation[]
 }
 
 export interface CreateStationDto {
   stationId: string
   stationName: string
-  labelLocation?: LabelLocation
-  programName?: string
-  labelFormat?: string
-  labelRange?: string
-  boardDirectionFirstSide?: BoardDirection
-  boardDirectionSecondSide?: BoardDirection
-  pcbBoardSide?: PcbBoardSide
-  stencilName?: string
-  stencilRevision?: string
-  pwb?: string
-  pwbRevision?: string
-  stencilThickness?: string
-  printingMaterial?: string
-  solderPasteType?: string
-  squeegeeType?: string
-  squeegeeSettingsId?: number
-  processFlowId?: number
-  // New fields
-  documentation?: string
-  flowCharts?: string
-  specifications?: string
+  status?: string
+  stationCode?: string // Changed from staticCode
+  description?: string
+  location?: string
+  operator?: string
+  addStation?: string
+  specifications?: CreateSpecificationDto[]
 }
 
 export interface UpdateStationDto {
   stationId?: string
   stationName?: string
-  labelLocation?: LabelLocation
-  programName?: string
-  labelFormat?: string
-  labelRange?: string
-  boardDirectionFirstSide?: BoardDirection
-  boardDirectionSecondSide?: BoardDirection
-  pcbBoardSide?: PcbBoardSide
-  stencilName?: string
-  stencilRevision?: string
-  pwb?: string
-  pwbRevision?: string
-  stencilThickness?: string
-  printingMaterial?: string
-  solderPasteType?: string
-  squeegeeType?: string
-  squeegeeSettingsId?: number
-  processFlowId?: number
-  // New fields
-  documentation?: string
-  flowCharts?: string
-  specifications?: string
+  status?: string
+  stationCode?: string // Changed from staticCode
+  description?: string
+  location?: string
+  operator?: string
+  addStation?: string
 }
 
-// Process Flow type
-export interface ProcessFlow {
-  id: number
-  fileName: string
-  filePath: string
-  fileSize: number
-  createdAt: string
-  updatedAt: string
+export interface CreateSpecificationDto {
+  name: string
+  slug: string
+  type: SpecificationType
+  isRequired: boolean
+  isActive: boolean
+  suggestions: string[]
+  stationId: string
 }
 
-// Squeegee Settings type
-export interface SqueegeeSettings {
-  id: number
-  // Add other fields as needed
-  createdAt?: string
-  updatedAt?: string
+export interface UpdateSpecificationDto {
+  name?: string
+  slug?: string
+  type?: SpecificationType
+  isRequired?: boolean
+  isActive?: boolean
+  suggestions?: string[]
+}
+
+export interface CreateTechnicalSpecificationDto {
+  name: string
+  value: string
+  stationId: string
+}
+
+export interface UpdateTechnicalSpecificationDto {
+  name?: string
+  value?: string
+}
+
+export interface CreateFlowChartDto {
+  content: string
+  stationId: string
+  files?: File[]
+}
+
+export interface UpdateFlowChartDto {
+  content?: string
+}
+
+export interface CreateDocumentationDto {
+  content: string
+  stationId: string
+  files?: File[]
+}
+
+export interface UpdateDocumentationDto {
+  content?: string
 }
