@@ -74,7 +74,7 @@ export default function CreateMpiForm() {
           )}
 
           {success && (
-            <Alert variant="success" className="mb-4 bg-green-50 text-green-800 border-green-200">
+            <Alert variant="default" className="mb-4 bg-green-50 text-green-800 border-green-200">
               <AlertTitle>Success</AlertTitle>
               <AlertDescription>{success}</AlertDescription>
             </Alert>
