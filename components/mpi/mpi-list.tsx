@@ -1,361 +1,128 @@
-// "use client"
-
-// import { useState, useEffect } from "react"
-// import { Button } from "@/components/ui/button"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import { Badge } from "@/components/ui/badge"
-// import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
-// import { Settings, Edit, Trash2, RefreshCw, Search } from "lucide-react"
-// import { mpiApi } from "@/lib/mpi"
-// import { Mpi } from "@/types/mpi"
-
-// export default function MpiList() {
-//   const [mpis, setMpis] = useState<Mpi[]>([])
-//   const [filteredMpis, setFilteredMpis] = useState<Mpi[]>([])
-//   const [searchTerm, setSearchTerm] = useState("")
-//   const [isLoading, setIsLoading] = useState(true)
-//   const [error, setError] = useState("")
-
-//   const fetchMpis = async () => {
-//     setIsLoading(true)
-//     setError("")
-//     try {
-//       const mpiList = await mpiApi.findAll()
-//       setMpis(mpiList)
-//       setFilteredMpis(mpiList)
-//     } catch (err) {
-//       setError(err instanceof Error ? err.message : "Failed to fetch MPIs")
-//     } finally {
-//       setIsLoading(false)
-//     }
-//   }
-
-//   useEffect(() => {
-//     fetchMpis()
-//   }, [])
-
-//   useEffect(() => {
-//     if (searchTerm) {
-//       const filtered = mpis.filter(
-//         (mpi) =>
-//           mpi.stationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//           mpi.processName.toLowerCase().includes(searchTerm.toLowerCase()),
-//       )
-//       setFilteredMpis(filtered)
-//     } else {
-//       setFilteredMpis(mpis)
-//     }
-//   }, [searchTerm, mpis])
-
-//   const handleDelete = async (id: string) => {
-//     if (!confirm("Are you sure you want to delete this MPI?")) return
-
-//     try {
-//       await mpiApi.remove(id)
-//       await fetchMpis()
-//     } catch (err) {
-//       setError(err instanceof Error ? err.message : "Failed to delete MPI")
-//     }
-//   }
-
-//   return (
-//     <Card className="w-full">
-//       <CardHeader>
-//         <div className="flex items-center justify-between">
-//           <CardTitle className="flex items-center gap-2 text-[hsl(var(--primary))]">
-//             <Settings className="h-5 w-5" />
-//             MPI List
-//           </CardTitle>
-//           <Button variant="outline" size="sm" onClick={fetchMpis} disabled={isLoading}>
-//             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-//             Refresh
-//           </Button>
-//         </div>
-
-//         <div className="flex items-center gap-2 mt-4">
-//           <Search className="h-4 w-4 text-gray-500" />
-//           <div className="flex-1">
-//             <Label htmlFor="search" className="sr-only">
-//               Search MPIs
-//             </Label>
-//             <Input
-//               id="search"
-//               type="text"
-//               placeholder="Search by station name or process name..."
-//               value={searchTerm}
-//               onChange={(e) => setSearchTerm(e.target.value)}
-//               className="h-9"
-//             />
-//           </div>
-//         </div>
-//       </CardHeader>
-//       <CardContent>
-//         {error && (
-//           <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-md mb-4 text-sm">
-//             {error}
-//           </div>
-//         )}
-
-//         {isLoading ? (
-//           <div className="text-center py-8 text-gray-500">Loading MPIs...</div>
-//         ) : filteredMpis.length === 0 ? (
-//           <div className="text-center py-8 text-gray-500">
-//             {searchTerm ? "No MPIs found matching your search" : "No MPIs found"}
-//           </div>
-//         ) : (
-//           <div className="grid gap-4">
-//             {filteredMpis.map((mpi) => (
-//               <div
-//                 key={mpi.id}
-//                 className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-//               >
-//                 <div className="flex items-start justify-between">
-//                   <div className="flex-1">
-//                     <div className="flex items-center gap-3 mb-2">
-//                       <h3 className="font-semibold text-lg">{mpi.processName}</h3>
-//                       <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-//                         {mpi.stationName}
-//                       </Badge>
-//                     </div>
-//                     <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-//                       {mpi.parameters && Object.keys(mpi.parameters).length > 0 && (
-//                         <div>
-//                           <span className="font-medium">Parameters:</span>
-//                           <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-//                             {JSON.stringify(mpi.parameters, null, 2)}
-//                           </pre>
-//                         </div>
-//                       )}
-//                       {mpi.specifications && Object.keys(mpi.specifications).length > 0 && (
-//                         <div>
-//                           <span className="font-medium">Specifications:</span>
-//                           <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-//                             {JSON.stringify(mpi.specifications, null, 2)}
-//                           </pre>
-//                         </div>
-//                       )}
-//                       {mpi.createdAt && (
-//                         <p>
-//                           <span className="font-medium">Created:</span> {new Date(mpi.createdAt).toLocaleDateString()}
-//                         </p>
-//                       )}
-//                     </div>
-//                   </div>
-//                   <div className="flex gap-2 ml-4">
-//                     <Button variant="outline" size="sm">
-//                       <Edit className="h-4 w-4" />
-//                     </Button>
-//                     <Button
-//                       variant="outline"
-//                       size="sm"
-//                       onClick={() => handleDelete(mpi.id)}
-//                       className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-//                     >
-//                       <Trash2 className="h-4 w-4" />
-//                     </Button>
-//                   </div>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         )}
-//       </CardContent>
-//     </Card>
-//   )
-// }
-
-
-
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { mockMpis } from "@/lib/mock-data/mpi-data"
-import { Settings, Edit, Trash2, RefreshCw, Search, Eye } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Edit, Trash2, ClipboardList, Factory, AlertCircle } from "lucide-react"
+import { mpiApi } from "@/lib/mpi"
 import { Mpi } from "@/types/mpi"
 
-export default function MpiList() {
-  const [mpis, setMpis] = useState<Mpi[]>([])
-  const [filteredMpis, setFilteredMpis] = useState<Mpi[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
+interface MpiListProps {
+  mpis: Mpi[]
+  isLoading: boolean
+  error: string | null
+}
+
+export function MpiList({ mpis, isLoading, error }: MpiListProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const router = useRouter()
 
-  const fetchMpis = async () => {
-    setIsLoading(true)
-    setError("")
-    try {
-      // Simulate API call with mock data
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      setMpis(mockMpis)
-      setFilteredMpis(mockMpis)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch MPIs")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchMpis()
-  }, [])
-
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = mpis.filter(
-        (mpi) =>
-          mpi.stationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (mpi.processName && mpi.processName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (mpi.purpose && mpi.purpose.toLowerCase().includes(searchTerm.toLowerCase())),
-      )
-      setFilteredMpis(filtered)
-    } else {
-      setFilteredMpis(mpis)
-    }
-  }, [searchTerm, mpis])
-
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this MPI?")) return
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 300))
-      const updatedMpis = mpis.filter((mpi) => mpi.id !== id)
-      setMpis(updatedMpis)
-      setFilteredMpis(updatedMpis)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete MPI")
+    if (confirm("Are you sure you want to delete this MPI?")) {
+      try {
+        setDeletingId(id)
+        setDeleteError(null)
+        await mpiApi.remove(id)
+        router.refresh()
+      } catch (err) {
+        console.error("Error deleting MPI:", err)
+        setDeleteError(err instanceof Error ? err.message : "Failed to delete MPI.")
+      } finally {
+        setDeletingId(null)
+      }
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-      case "in_progress":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
-    }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    )
+  }
+
+  if (deleteError) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{deleteError}</AlertDescription>
+      </Alert>
+    )
+  }
+
+  if (!mpis || mpis.length === 0) {
+    return <div className="text-center p-8 text-gray-500">No MPIs found. Create your first MPI to get started.</div>
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-[hsl(var(--primary))]">
-            <Settings className="h-5 w-5" />
-            MPI List
-          </CardTitle>
-          <Button variant="outline" size="sm" onClick={fetchMpis} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2 mt-4">
-          <Search className="h-4 w-4 text-gray-500" />
-          <div className="flex-1">
-            <Label htmlFor="search" className="sr-only">
-              Search MPIs
-            </Label>
-            <Input
-              id="search"
-              type="text"
-              placeholder="Search by station name, process name, or purpose..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-9"
-            />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-md mb-4 text-sm">
-            {error}
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="text-center py-8 text-gray-500">Loading MPIs...</div>
-        ) : filteredMpis.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            {searchTerm ? "No MPIs found matching your search" : "No MPIs found"}
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {filteredMpis.map((mpi) => (
-              <div
-                key={mpi.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{mpi.processName || mpi.stationName}</h3>
-                      {mpi.revision && <Badge variant="outline">{mpi.revision}</Badge>}
-                      <Badge className={getStatusColor(mpi.complianceStatus)}>{mpi.complianceStatus}</Badge>
-                    </div>
-                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <p>
-                        <span className="font-medium">Station:</span> {mpi.stationName} ({mpi.stationId})
-                      </p>
-                      {mpi.purpose && (
-                        <p>
-                          <span className="font-medium">Purpose:</span> {mpi.purpose.substring(0, 100)}
-                          {mpi.purpose.length > 100 ? "..." : ""}
-                        </p>
-                      )}
-                      {mpi.effectiveDate && (
-                        <p>
-                          <span className="font-medium">Effective Date:</span>{" "}
-                          {new Date(mpi.effectiveDate).toLocaleDateString()}
-                        </p>
-                      )}
-                      {mpi.checklistId && (
-                        <p>
-                          <span className="font-medium">Checklist:</span> {mpi.checklist?.name || "Associated"}
-                        </p>
-                      )}
-                      {mpi.createdAt && (
-                        <p>
-                          <span className="font-medium">Created:</span> {new Date(mpi.createdAt).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 ml-4">
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/mpi/view/${mpi.id}`)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/mpi/edit/${mpi.id}`)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(mpi.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
+    <div className="grid gap-4">
+      {mpis.map((mpi) => (
+        <Card key={mpi.id} className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg">Job ID: {mpi.jobId || "N/A"}</h3>
+                  <Badge variant="outline">Assembly: {mpi.assemblyId || "N/A"}</Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/mpi/edit/${mpi.id}`)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    onClick={() => handleDelete(mpi.id)}
+                    disabled={deletingId === mpi.id}
+                  >
+                    {deletingId === mpi.id ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                    ) : (
                       <Trash2 className="h-4 w-4" />
-                    </Button>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <ClipboardList className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium text-sm">
+                      Checklists ({mpi.checklistMpis ? mpi.checklistMpis.length : 0})
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Factory className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium text-sm">
+                      Stations ({mpi.stationMpis ? mpi.stationMpis.length : 0})
+                    </span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   )
 }
