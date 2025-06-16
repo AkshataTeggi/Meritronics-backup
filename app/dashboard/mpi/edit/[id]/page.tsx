@@ -1,3 +1,4 @@
+"use client"
 import EditMpiForm from "@/components/mpi/edit-mpi-form"
 
 interface EditMpiPageProps {

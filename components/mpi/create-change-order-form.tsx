@@ -1,3 +1,5 @@
+
+
 // "use client"
 
 // import type React from "react"
@@ -14,12 +16,17 @@
 // import { Alert, AlertDescription } from "@/components/ui/alert"
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 // import { Separator } from "@/components/ui/separator"
-// import { Loader2, Save, ArrowLeft, Upload, FileText } from "lucide-react"
+// import { Loader2, Save, ArrowLeft, Upload, FileText, ArrowRight } from "lucide-react"
 // import { useChangeOrderEnums } from "@/hooks/use-change-order-enums"
 // import { changeOrderApi } from "@/lib/change-order"
 // import { CreateChangeOrderDto } from "@/types/mpi"
 
-// export function CreateChangeOrderForm() {
+// interface CreateChangeOrderFormProps {
+//   onComplete?: (data: any) => void
+//   isWizardMode?: boolean
+// }
+
+// export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: CreateChangeOrderFormProps) {
 //   const router = useRouter()
 //   const {
 //     loading: enumsLoading,
@@ -51,17 +58,22 @@
 //   const totalSteps = 5 // Assuming this is part of a 5-step wizard
 
 //   const handlePrevious = () => {
-//     if (currentStep > 1) {
-//       // Navigate to previous step in the MPI creation wizard
-//       router.push(`/dashboard/mpi/create?step=${currentStep - 1}`)
+//     if (isWizardMode && onComplete) {
+//       // In wizard mode, let the parent handle navigation
+//       return
 //     }
+//     // Navigate back to the main MPI page or previous step
+//     router.push("/dashboard/mpi")
 //   }
 
 //   const handleNext = () => {
-//     if (currentStep < totalSteps) {
-//       // Navigate to next step in the MPI creation wizard
-//       router.push(`/dashboard/mpi/create?step=${currentStep + 1}`)
+//     if (isWizardMode && onComplete) {
+//       // In wizard mode, call onComplete to proceed to next step
+//       onComplete(formData)
+//       return
 //     }
+//     // Navigate to the product checklist binder step
+//     router.push("/dashboard/mpi/product-checklist-binder")
 //   }
 
 //   const [loading, setLoading] = useState(false)
@@ -105,7 +117,12 @@
 //       }
 
 //       await changeOrderApi.create(submitData)
-//       router.push("/dashboard/mpi/change-order")
+
+//       if (isWizardMode && onComplete) {
+//         onComplete(submitData)
+//       } else {
+//         router.push("/dashboard/mpi/change-order")
+//       }
 //     } catch (err) {
 //       console.error("Error creating change order:", err)
 //       setError("Failed to create change order. Please try again.")
@@ -155,23 +172,26 @@
 
 //   return (
 //     <div className="space-y-6">
-//       <div className="flex items-center justify-between mb-6">
-//         <Button variant="outline" onClick={() => router.back()}>
-//           <ArrowLeft className="h-4 w-4 mr-2" />
-//           Back
-//         </Button>
-
-//         <h1 className="text-3xl font-bold">Customer New / Change Order</h1>
-
-//         <div className="flex gap-2">
-//           <Button variant="outline" onClick={handlePrevious} disabled={currentStep <= 1}>
-//             Previous
+//       {!isWizardMode && (
+//         <div className="flex items-center justify-between mb-6">
+//           <Button variant="outline" onClick={() => router.back()}>
+//             <ArrowLeft className="h-4 w-4 mr-2" />
+//             Back
 //           </Button>
-//           <Button onClick={handleNext} disabled={currentStep >= totalSteps}>
-//             Next
-//           </Button>
+
+//           <h1 className="text-3xl font-bold">Customer New / Change Order</h1>
+
+//           <div className="flex gap-2">
+//             <Button variant="outline" onClick={handlePrevious} disabled={currentStep <= 1}>
+//               Previous
+//             </Button>
+//             <Button onClick={handleNext} disabled={currentStep >= totalSteps}>
+//               Next
+//               <ArrowRight className="h-4 w-4 ml-2" />
+//             </Button>
+//           </div>
 //         </div>
-//       </div>
+//       )}
 
 //       <Tabs defaultValue="form" className="w-full">
 //         <TabsList className="grid w-full grid-cols-2">
@@ -202,10 +222,10 @@
 //                     <h3 className="text-lg font-semibold">Order Type</h3>
 //                     <div className="grid grid-cols-1 gap-3">
 //                       {getOrderTypeOptions().map((option) => (
-//                         <div key={option.value} className="flex items-center space-x-2">
+//                         <div key={String(option.value)} className="flex items-center space-x-2">
 //                           <Checkbox
 //                             id={`order-${option.value}`}
-//                             checked={formData.orderType === option.value}
+//                             checked={formData.orderType === String(option.value)}
 //                             onCheckedChange={(checked) => {
 //                               if (checked) {
 //                                 setFormData((prev) => ({
@@ -346,7 +366,7 @@
 //                     </div>
 
 //                     <div className="space-y-2 md:col-span-2">
-//                       <Label htmlFor="description">Description *</Label>
+//                       <Label htmlFor="description">Description </Label>
 //                       <Textarea
 //                         id="description"
 //                         value={formData.description || ""}
@@ -400,7 +420,7 @@
 //                         </SelectTrigger>
 //                         <SelectContent>
 //                           {getAttachmentTypeOptions().map((option) => (
-//                             <SelectItem key={option.value} value={option.value}>
+//                             <SelectItem key={String(option.value)} value={String(option.value)}>
 //                               {option.label}
 //                             </SelectItem>
 //                           ))}
@@ -511,7 +531,7 @@
 //                     ) : (
 //                       <>
 //                         <Save className="h-4 w-4 mr-2" />
-//                         Create Change Order
+//                         {isWizardMode ? "Save & Continue" : "Create Change Order"}
 //                       </>
 //                     )}
 //                   </Button>
@@ -587,6 +607,12 @@
 
 
 
+
+
+
+
+
+
 "use client"
 
 import type React from "react"
@@ -633,12 +659,13 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
     internalOrderNumber: "",
     customer: "",
     assemblyNumber: "",
-    revision: "",
     description: "",
     enumAttachmentType: "",
     fileActions: [],
     documentAttachments: [],
     markComplete: false,
+    applicableJobId: "",
+    revision: "",
   })
 
   const [currentStep, setCurrentStep] = useState(1)
@@ -679,16 +706,25 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (
-      !formData.orderType ||
-      !formData.location ||
-      !formData.internalOrderNumber ||
-      !formData.customer ||
-      !formData.assemblyNumber ||
-      !formData.revision ||
-      !formData.enumAttachmentType
-    ) {
-      setError("Please fill in all required fields")
+    // Clear any existing errors
+    setError(null)
+
+    // Validate required fields with specific error messages
+    const requiredFields = [
+      { field: formData.customer?.trim(), name: "Customer" },
+      { field: formData.assemblyNumber?.trim(), name: "Assembly Number" },
+      { field: formData.revision?.trim(), name: "Revision" },
+      { field: formData.description?.trim(), name: "Description" },
+      { field: formData.internalOrderNumber?.trim(), name: "Internal Order Number" },
+      { field: formData.orderType, name: "Order Type" },
+      { field: formData.location, name: "Location" },
+      { field: formData.enumAttachmentType, name: "Attachment Type" },
+    ]
+
+    const missingFields = requiredFields.filter(({ field }) => !field).map(({ name }) => name)
+
+    if (missingFields.length > 0) {
+      setError(`Please fill in the following required fields: ${missingFields.join(", ")}`)
       return
     }
 
@@ -699,6 +735,16 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
       // Format dates properly for API
       const submitData = {
         ...formData,
+        // Trim string fields
+        customer: formData.customer.trim(),
+        assemblyNumber: formData.assemblyNumber.trim(),
+        revision: formData.revision.trim(),
+        description: (formData.description ?? "").trim(),
+        internalOrderNumber: formData.internalOrderNumber.trim(),
+        applicableJobId: formData.applicableJobId?.trim() || "",
+        customerEcoNumber: formData.customerEcoNumber?.trim() || "",
+        briefDescription: formData.briefDescription?.trim() || "",
+        notes: formData.notes?.trim() || "",
         distributionDate: formData.distributionDate ? new Date(formData.distributionDate).toISOString() : undefined,
         requiredBy: formData.requiredBy ? new Date(formData.requiredBy).toISOString() : undefined,
       }
@@ -802,6 +848,90 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
                   </Alert>
                 )}
 
+                {/* Customer and Assembly Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Customer & Assembly Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="customer">Customer *</Label>
+                      <Input
+                        id="customer"
+                        value={formData.customer}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            customer: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter customer name"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="assemblyNumber">Assembly Number *</Label>
+                      <Input
+                        id="assemblyNumber"
+                        value={formData.assemblyNumber}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            assemblyNumber: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter assembly number"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="revision">Revision *</Label>
+                      <Input
+                        id="revision"
+                        value={formData.revision}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            revision: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter revision"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="applicableJobId">Applicable Job ID</Label>
+                      <Input
+                        id="applicableJobId"
+                        value={formData.applicableJobId || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            applicableJobId: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter applicable job ID"
+                      />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="description">Description *</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            description: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter description"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
                 {/* Order Type and Location Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Order Type */}
@@ -809,10 +939,10 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
                     <h3 className="text-lg font-semibold">Order Type</h3>
                     <div className="grid grid-cols-1 gap-3">
                       {getOrderTypeOptions().map((option) => (
-                        <div key={String(option.value)} className="flex items-center space-x-2">
+                        <div key={option.value} className="flex items-center space-x-2">
                           <Checkbox
                             id={`order-${option.value}`}
-                            checked={formData.orderType === String(option.value)}
+                            checked={formData.orderType === option.value}
                             onCheckedChange={(checked) => {
                               if (checked) {
                                 setFormData((prev) => ({
@@ -903,90 +1033,6 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
 
                 <Separator />
 
-                {/* Customer and Assembly Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Customer & Assembly Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="customer">Customer *</Label>
-                      <Input
-                        id="customer"
-                        value={formData.customer}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            customer: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter customer name"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="assemblyNumber">Assembly Number *</Label>
-                      <Input
-                        id="assemblyNumber"
-                        value={formData.assemblyNumber}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            assemblyNumber: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter assembly number"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="revision">Revision *</Label>
-                      <Input
-                        id="revision"
-                        value={formData.revision}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            revision: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter revision"
-                      />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="description">Description *</Label>
-                      <Textarea
-                        id="description"
-                        value={formData.description || ""}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter description"
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="applicableJobId">Applicable Job ID</Label>
-                      <Input
-                        id="applicableJobId"
-                        value={formData.applicableJobId || ""}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            applicableJobId: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter job ID"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
                 {/* Additional Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Additional Information</h3>
@@ -1007,7 +1053,7 @@ export function CreateChangeOrderForm({ onComplete, isWizardMode = false }: Crea
                         </SelectTrigger>
                         <SelectContent>
                           {getAttachmentTypeOptions().map((option) => (
-                            <SelectItem key={String(option.value)} value={String(option.value)}>
+                            <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
                           ))}

@@ -1,3 +1,4 @@
+
 // "use client"
 
 // import type React from "react"
@@ -11,9 +12,8 @@
 // import { Textarea } from "@/components/ui/textarea"
 // import { Checkbox } from "@/components/ui/checkbox"
 // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-// import { Badge } from "@/components/ui/badge"
 
-// import { Save, ArrowLeft, Plus, Trash2, Edit, FileText, FileLineChartIcon as FlowChart, Settings } from "lucide-react"
+// import { Save, ArrowLeft, Plus, Trash2, Edit, Settings, FileText, GitBranch } from "lucide-react"
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 // import { toast } from "@/components/ui/use-toast"
 // import { FileUploadField } from "./file-upload-field"
@@ -22,7 +22,7 @@
 // import { specificationsApi } from "@/lib/specifications"
 // import { stationApi } from "@/lib/stations"
 // import { technicalSpecificationsApi } from "@/lib/technical-specifications"
-// import type { Station, UpdateStationDto } from "@/types/station"
+// import type { SpecificationType, Station, UpdateStationDto } from "@/types/station"
 
 // interface EditStationFormProps {
 //   stationId: string
@@ -91,6 +91,9 @@
 //   const router = useRouter()
 //   const [shouldRedirectAfterUpdate, setShouldRedirectAfterUpdate] = useState(false)
 
+//   // Add this after other state declarations
+//   const [availableTypes, setAvailableTypes] = useState<SpecificationType[]>([])
+
 //   useEffect(() => {
 //     const fetchStationData = async () => {
 //       try {
@@ -142,7 +145,17 @@
 //       }
 //     }
 
+//     const fetchSpecificationTypes = async () => {
+//       try {
+//         const types = await specificationsApi.getTypes()
+//         setAvailableTypes(types)
+//       } catch (err) {
+//         console.error("Failed to fetch specification types:", err)
+//       }
+//     }
+
 //     fetchStationData()
+//     fetchSpecificationTypes()
 //   }, [stationId])
 
 //   const handleSubmit = async (e: React.FormEvent) => {
@@ -754,164 +767,202 @@
 //                     </TableHeader>
 //                     <TableBody>
 //                       {specifications.map((spec) => (
-//                         <TableRow key={spec.id}>
-//                           <TableCell className="font-medium">
-//                             {editingSpec === spec.id ? (
-//                               <Input
-//                                 value={spec.name}
-//                                 onChange={(e) => {
-//                                   const updated = specifications.map((s) =>
-//                                     s.id === spec.id ? { ...s, name: e.target.value } : s,
-//                                   )
-//                                   setSpecifications(updated)
-//                                 }}
-//                                 className="h-8"
-//                               />
-//                             ) : (
-//                               spec.name
-//                             )}
-//                           </TableCell>
-//                           <TableCell>
-//                             {editingSpec === spec.id ? (
-//                               <Select
-//                                 value={spec.type}
-//                                 onValueChange={(value) => {
-//                                   const updated = specifications.map((s) =>
-//                                     s.id === spec.id ? { ...s, type: value } : s,
-//                                   )
-//                                   setSpecifications(updated)
-//                                 }}
-//                               >
-//                                 <SelectTrigger className="h-8">
-//                                   <SelectValue />
-//                                 </SelectTrigger>
-//                                 <SelectContent>
-//                                   <SelectItem value="TEXT">Text</SelectItem>
-//                                   <SelectItem value="NUMBER">Number</SelectItem>
-//                                   <SelectItem value="BOOLEAN">Boolean</SelectItem>
-//                                   <SelectItem value="DATE">Date</SelectItem>
-//                                 </SelectContent>
-//                               </Select>
-//                             ) : (
-//                               <Badge variant="outline" className="capitalize">
-//                                 {spec.type}
-//                               </Badge>
-//                             )}
-//                           </TableCell>
-//                           <TableCell>
-//                             {editingSpec === spec.id ? (
-//                               <Checkbox
-//                                 checked={spec.isRequired}
-//                                 onCheckedChange={(checked) => {
-//                                   const updated = specifications.map((s) =>
-//                                     s.id === spec.id ? { ...s, isRequired: checked } : s,
-//                                   )
-//                                   setSpecifications(updated)
-//                                 }}
-//                               />
-//                             ) : (
-//                               <Badge variant={spec.isRequired ? "destructive" : "secondary"}>
-//                                 {spec.isRequired ? "Required" : "Optional"}
-//                               </Badge>
-//                             )}
-//                           </TableCell>
-//                           <TableCell>
-//                             {editingSpec === spec.id ? (
-//                               <Checkbox
-//                                 checked={spec.isActive}
-//                                 onCheckedChange={(checked) => {
-//                                   const updated = specifications.map((s) =>
-//                                     s.id === spec.id ? { ...s, isActive: checked } : s,
-//                                   )
-//                                   setSpecifications(updated)
-//                                 }}
-//                               />
-//                             ) : (
-//                               <Badge variant={spec.isActive ? "default" : "secondary"}>
-//                                 {spec.isActive ? "Active" : "Inactive"}
-//                               </Badge>
-//                             )}
-//                           </TableCell>
-//                           <TableCell>
-//                             {spec.suggestions && spec.suggestions.length > 0 ? (
-//                               <div className="flex flex-wrap gap-1">
-//                                 {spec.suggestions.map(
-//                                   (
-//                                     suggestion:
-//                                       | string
-//                                       | number
-//                                       | bigint
-//                                       | boolean
-//                                       | React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
-//                                       | Iterable<React.ReactNode>
-//                                       | React.ReactPortal
-//                                       | Promise<
-//                                           | string
-//                                           | number
-//                                           | bigint
-//                                           | boolean
-//                                           | React.ReactPortal
-//                                           | React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
-//                                           | Iterable<React.ReactNode>
-//                                           | null
-//                                           | undefined
-//                                         >
-//                                       | null
-//                                       | undefined,
-//                                     index: React.Key | null | undefined,
-//                                   ) => (
-//                                     <Badge key={index} variant="outline" className="text-xs">
-//                                       {suggestion}
-//                                     </Badge>
-//                                   ),
+//                         <>
+//                           <TableRow key={spec.id}>
+//                             <TableCell className="font-medium">
+//                               {editingSpec === spec.id ? (
+//                                 <Input
+//                                   value={spec.name}
+//                                   onChange={(e) => {
+//                                     const updated = specifications.map((s) =>
+//                                       s.id === spec.id ? { ...s, name: e.target.value } : s,
+//                                     )
+//                                     setSpecifications(updated)
+//                                   }}
+//                                   className="h-8"
+//                                 />
+//                               ) : (
+//                                 spec.name
+//                               )}
+//                             </TableCell>
+//                             <TableCell>
+//                               {editingSpec === spec.id ? (
+//                                 <Select
+//                                   value={spec.type}
+//                                   onValueChange={(value) => {
+//                                     const updated = specifications.map((s) =>
+//                                       s.id === spec.id ? { ...s, type: value } : s,
+//                                     )
+//                                     setSpecifications(updated)
+//                                   }}
+//                                 >
+//                                   <SelectTrigger className="h-8">
+//                                     <SelectValue />
+//                                   </SelectTrigger>
+//                                   <SelectContent>
+//                                     {availableTypes.length > 0 ? (
+//                                       availableTypes.map((type) => (
+//                                         <SelectItem key={type} value={type}>
+//                                           {type
+//                                             .replace(/_/g, " ")
+//                                             .toLowerCase()
+//                                             .replace(/\b\w/g, (l) => l.toUpperCase())}
+//                                         </SelectItem>
+//                                       ))
+//                                     ) : (
+//                                       <>
+//                                         <SelectItem value="TEXT">Text</SelectItem>
+//                                         <SelectItem value="NUMBER">Number</SelectItem>
+//                                         <SelectItem value="BOOLEAN_TYPE">Boolean</SelectItem>
+//                                         <SelectItem value="DATE">Date</SelectItem>
+//                                       </>
+//                                     )}
+//                                   </SelectContent>
+//                                 </Select>
+//                               ) : (
+//                                 <span className="capitalize text-sm">{spec.type}</span>
+//                               )}
+//                             </TableCell>
+//                             <TableCell>
+//                               {editingSpec === spec.id ? (
+//                                 <Checkbox
+//                                   checked={spec.isRequired}
+//                                   onCheckedChange={(checked) => {
+//                                     const updated = specifications.map((s) =>
+//                                       s.id === spec.id ? { ...s, isRequired: checked } : s,
+//                                     )
+//                                     setSpecifications(updated)
+//                                   }}
+//                                 />
+//                               ) : (
+//                                 <span className="text-sm">{spec.isRequired ? "Required" : "Optional"}</span>
+//                               )}
+//                             </TableCell>
+//                             <TableCell>
+//                               {editingSpec === spec.id ? (
+//                                 <Checkbox
+//                                   checked={spec.isActive}
+//                                   onCheckedChange={(checked) => {
+//                                     const updated = specifications.map((s) =>
+//                                       s.id === spec.id ? { ...s, isActive: checked } : s,
+//                                     )
+//                                     setSpecifications(updated)
+//                                   }}
+//                                 />
+//                               ) : (
+//                                 <span className="text-sm">{spec.isActive ? "Active" : "Inactive"}</span>
+//                               )}
+//                             </TableCell>
+//                             <TableCell>
+//                               {spec.suggestions && spec.suggestions.length > 0 ? (
+//                                 <div className="text-sm">{spec.suggestions.join(", ")}</div>
+//                               ) : (
+//                                 <span className="text-muted-foreground">None</span>
+//                               )}
+//                             </TableCell>
+//                             <TableCell className="text-sm text-muted-foreground">
+//                               {spec.createdAt ? new Date(spec.createdAt).toLocaleString() : "N/A"}
+//                             </TableCell>
+//                             <TableCell>
+//                               <div className="flex gap-2">
+//                                 {editingSpec === spec.id ? (
+//                                   <>
+//                                     <Button size="sm" onClick={() => handleUpdateSpecification(spec)} className="h-8">
+//                                       Save
+//                                     </Button>
+//                                     <Button
+//                                       size="sm"
+//                                       variant="outline"
+//                                       onClick={() => setEditingSpec(null)}
+//                                       className="h-8"
+//                                     >
+//                                       Cancel
+//                                     </Button>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <Button
+//                                       size="sm"
+//                                       variant="outline"
+//                                       onClick={() => setEditingSpec(spec.id)}
+//                                       className="h-8"
+//                                     >
+//                                       <Edit className="h-3 w-3" />
+//                                     </Button>
+//                                     <Button
+//                                       size="sm"
+//                                       variant="outline"
+//                                       onClick={() => handleRemoveSpecification(spec.id)}
+//                                       className="h-8 text-red-500 hover:text-red-700"
+//                                     >
+//                                       <Trash2 className="h-3 w-3" />
+//                                     </Button>
+//                                   </>
 //                                 )}
 //                               </div>
-//                             ) : (
-//                               <span className="text-muted-foreground">None</span>
-//                             )}
-//                           </TableCell>
-//                           <TableCell className="text-sm text-muted-foreground">
-//                             {spec.createdAt ? new Date(spec.createdAt).toLocaleString() : "N/A"}
-//                           </TableCell>
-//                           <TableCell>
-//                             <div className="flex gap-2">
-//                               {editingSpec === spec.id ? (
-//                                 <>
-//                                   <Button size="sm" onClick={() => handleUpdateSpecification(spec)} className="h-8">
-//                                     Save
-//                                   </Button>
-//                                   <Button
-//                                     size="sm"
-//                                     variant="outline"
-//                                     onClick={() => setEditingSpec(null)}
-//                                     className="h-8"
-//                                   >
-//                                     Cancel
-//                                   </Button>
-//                                 </>
-//                               ) : (
-//                                 <>
-//                                   <Button
-//                                     size="sm"
-//                                     variant="outline"
-//                                     onClick={() => setEditingSpec(spec.id)}
-//                                     className="h-8"
-//                                   >
-//                                     <Edit className="h-3 w-3" />
-//                                   </Button>
-//                                   <Button
-//                                     size="sm"
-//                                     variant="outline"
-//                                     onClick={() => handleRemoveSpecification(spec.id)}
-//                                     className="h-8 text-red-500 hover:text-red-700"
-//                                   >
-//                                     <Trash2 className="h-3 w-3" />
-//                                   </Button>
-//                                 </>
-//                               )}
-//                             </div>
-//                           </TableCell>
-//                         </TableRow>
+//                             </TableCell>
+//                           </TableRow>
+//                           {editingSpec === spec.id && spec.type === "DROPDOWN" && (
+//                             <TableRow>
+//                               <TableCell colSpan={7}>
+//                                 <div className="space-y-2 mt-2 p-4 bg-gray-50 rounded-md">
+//                                   <Label className="text-sm font-medium">Options</Label>
+//                                   <div className="space-y-2">
+//                                     {spec.suggestions?.map((option: string, index: number) => (
+//                                       <div key={index} className="flex items-center gap-2">
+//                                         <Input
+//                                           value={option}
+//                                           onChange={(e) => {
+//                                             const newOptions = [...(spec.suggestions || [])]
+//                                             newOptions[index] = e.target.value
+//                                             const updated = specifications.map((s) =>
+//                                               s.id === spec.id ? { ...s, suggestions: newOptions } : s,
+//                                             )
+//                                             setSpecifications(updated)
+//                                           }}
+//                                           placeholder="Enter option"
+//                                           className="h-8"
+//                                         />
+//                                         <Button
+//                                           type="button"
+//                                           variant="outline"
+//                                           size="sm"
+//                                           onClick={() => {
+//                                             const newOptions =
+//                                               spec.suggestions?.filter((_: any, i: number) => i !== index) || []
+//                                             const updated = specifications.map((s) =>
+//                                               s.id === spec.id ? { ...s, suggestions: newOptions } : s,
+//                                             )
+//                                             setSpecifications(updated)
+//                                           }}
+//                                           className="h-8 w-8 p-0"
+//                                         >
+//                                           <Trash2 className="h-3 w-3" />
+//                                         </Button>
+//                                       </div>
+//                                     ))}
+//                                     <Button
+//                                       type="button"
+//                                       variant="outline"
+//                                       size="sm"
+//                                       onClick={() => {
+//                                         const newOptions = [...(spec.suggestions || []), ""]
+//                                         const updated = specifications.map((s) =>
+//                                           s.id === spec.id ? { ...s, suggestions: newOptions } : s,
+//                                         )
+//                                         setSpecifications(updated)
+//                                       }}
+//                                       className="h-8"
+//                                     >
+//                                       <Plus className="h-3 w-3 mr-1" />
+//                                       Add Option
+//                                     </Button>
+//                                   </div>
+//                                 </div>
+//                               </TableCell>
+//                             </TableRow>
+//                           )}
+//                         </>
 //                       ))}
 //                     </TableBody>
 //                   </Table>
@@ -919,7 +970,6 @@
 //               </CardContent>
 //             </Card>
 
-//             {/* Add New Specification */}
 //             <Card>
 //               <CardHeader>
 //                 <CardTitle className="text-base">Add New Specification</CardTitle>
@@ -951,14 +1001,78 @@
 //                         <SelectValue placeholder="Select type" />
 //                       </SelectTrigger>
 //                       <SelectContent>
-//                         <SelectItem value="TEXT">Text</SelectItem>
-//                         <SelectItem value="NUMBER">Number</SelectItem>
-//                         <SelectItem value="BOOLEAN">Boolean</SelectItem>
-//                         <SelectItem value="DATE">Date</SelectItem>
+//                         {availableTypes.length > 0 ? (
+//                           availableTypes.map((type) => (
+//                             <SelectItem key={type} value={type}>
+//                               {type
+//                                 .replace(/_/g, " ")
+//                                 .toLowerCase()
+//                                 .replace(/\b\w/g, (l) => l.toUpperCase())}
+//                             </SelectItem>
+//                           ))
+//                         ) : (
+//                           <>
+//                             <SelectItem value="TEXT">Text</SelectItem>
+//                             <SelectItem value="NUMBER">Number</SelectItem>
+//                             <SelectItem value="BOOLEAN_TYPE">Boolean</SelectItem>
+//                             <SelectItem value="DATE">Date</SelectItem>
+//                             <SelectItem value="DROPDOWN">Dropdown</SelectItem>
+//                           </>
+//                         )}
 //                       </SelectContent>
 //                     </Select>
 //                   </div>
 //                 </div>
+
+//                 {newSpecification.type === "DROPDOWN" && (
+//                   <div className="space-y-2 col-span-2">
+//                     <Label htmlFor="specOptions" className="text-sm font-medium">
+//                       Options
+//                     </Label>
+//                     <div className="space-y-2">
+//                       {newSpecification.suggestions?.map((option: string, index: number) => (
+//                         <div key={index} className="flex items-center gap-2">
+//                           <Input
+//                             value={option}
+//                             onChange={(e) => {
+//                               const newOptions = [...(newSpecification.suggestions || [])]
+//                               newOptions[index] = e.target.value
+//                               setNewSpecification({ ...newSpecification, suggestions: newOptions })
+//                             }}
+//                             placeholder="Enter option"
+//                             className="h-9"
+//                           />
+//                           <Button
+//                             type="button"
+//                             variant="outline"
+//                             size="sm"
+//                             onClick={() => {
+//                               const newOptions =
+//                                 newSpecification.suggestions?.filter((_: any, i: number) => i !== index) || []
+//                               setNewSpecification({ ...newSpecification, suggestions: newOptions })
+//                             }}
+//                             className="h-9 w-9 p-0"
+//                           >
+//                             <Trash2 className="h-3 w-3" />
+//                           </Button>
+//                         </div>
+//                       ))}
+//                       <Button
+//                         type="button"
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => {
+//                           const newOptions = [...(newSpecification.suggestions || []), ""]
+//                           setNewSpecification({ ...newSpecification, suggestions: newOptions })
+//                         }}
+//                         className="h-9"
+//                       >
+//                         <Plus className="h-3 w-3 mr-1" />
+//                         Add Option
+//                       </Button>
+//                     </div>
+//                   </div>
+//                 )}
 
 //                 <div className="flex items-center gap-6">
 //                   <div className="flex items-center space-x-2">
@@ -1002,7 +1116,6 @@
 //               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Technical Specifications</h3>
 //             </div>
 
-//             {/* Current Technical Specifications */}
 //             <Card>
 //               <CardHeader>
 //                 <CardTitle className="text-base">Current Technical Specifications ({technicalSpecs.length})</CardTitle>
@@ -1100,7 +1213,6 @@
 //               </CardContent>
 //             </Card>
 
-//             {/* Add New Technical Specification */}
 //             <Card>
 //               <CardHeader>
 //                 <CardTitle className="text-base">Add New Technical Specification</CardTitle>
@@ -1148,7 +1260,6 @@
 //               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Documentation</h3>
 //             </div>
 
-//             {/* Existing documentation table */}
 //             <div className="space-y-4">
 //               <h4 className="text-md font-medium">Current Documentation</h4>
 //               {documentation.length === 0 ? (
@@ -1242,7 +1353,6 @@
 //               )}
 //             </div>
 
-//             {/* Add new documentation */}
 //             <div className="border rounded-md p-4 space-y-4 mt-6">
 //               <h4 className="text-md font-medium">Add New Documentation</h4>
 //               <div className="space-y-4">
@@ -1283,11 +1393,10 @@
 
 //           <TabsContent value="flowcharts" className="space-y-4">
 //             <div className="flex items-center gap-2 mb-4">
-//               <FlowChart className="h-5 w-5 text-green-500" />
+//               <GitBranch className="h-5 w-5 text-green-500" />
 //               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Flow Charts</h3>
 //             </div>
 
-//             {/* Existing flow charts table */}
 //             <div className="space-y-4">
 //               <h4 className="text-md font-medium">Current Flow Charts</h4>
 //               {flowCharts.length === 0 ? (
@@ -1386,7 +1495,6 @@
 //               )}
 //             </div>
 
-//             {/* Add new flow chart */}
 //             <div className="border rounded-md p-4 space-y-4 mt-6">
 //               <h4 className="text-md font-medium">Add New Flow Chart</h4>
 //               <div className="space-y-4">
@@ -1427,7 +1535,6 @@
 //         </Tabs>
 
 //         <div className="flex justify-between items-center gap-3 pt-4 border-t">
-//           {/* Left side - Cancel button */}
 //           <Button
 //             type="button"
 //             variant="outline"
@@ -1438,8 +1545,6 @@
 //             <ArrowLeft className="h-4 w-4 mr-2" />
 //             Cancel
 //           </Button>
-
-//           {/* Right side - Save button */}
 //           <Button
 //             type="submit"
 //             disabled={isSubmitting}
@@ -1461,6 +1566,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client"
 
 import type React from "react"
@@ -1475,7 +1594,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { Save, ArrowLeft, Plus, Trash2, Edit, FileText, FileLineChartIcon as FlowChart, Settings } from "lucide-react"
+import { Save, ArrowLeft, Plus, Trash2, Edit, Settings, FileText, GitBranch } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { FileUploadField } from "./file-upload-field"
@@ -1555,6 +1674,10 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
 
   // Add this after other state declarations
   const [availableTypes, setAvailableTypes] = useState<SpecificationType[]>([])
+
+  // Add validation error states
+  const [docValidationErrors, setDocValidationErrors] = useState<{ [key: string]: string }>({})
+  const [chartValidationErrors, setChartValidationErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     const fetchStationData = async () => {
@@ -1864,6 +1987,20 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
 
   // Handle updating documentation
   const handleUpdateDocumentation = async (doc: any) => {
+    // Clear previous errors
+    setDocValidationErrors({})
+
+    // Add validation
+    if (!doc.content || doc.content.trim() === "") {
+      setDocValidationErrors({ [doc.id]: "Content is required for documentation" })
+      toast({
+        title: "Validation Error",
+        description: "Content is required for documentation",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
       const updateData = {
         content: doc.content,
@@ -1878,6 +2015,7 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
       // Update local state with the response from API
       setDocumentation(documentation.map((d) => (d.id === doc.id ? updatedDoc : d)))
       setEditingDoc(null)
+      setDocValidationErrors({}) // Clear errors on success
 
       toast({
         title: "Documentation updated",
@@ -1885,6 +2023,7 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
       })
     } catch (err) {
       console.error("Failed to update documentation:", err)
+      setDocValidationErrors({ [doc.id]: err instanceof Error ? err.message : "Failed to update documentation" })
       toast({
         title: "Failed to update documentation",
         description: err instanceof Error ? err.message : "Unknown error",
@@ -1930,6 +2069,20 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
 
   // Handle updating flow chart
   const handleUpdateFlowChart = async (chart: any) => {
+    // Clear previous errors
+    setChartValidationErrors({})
+
+    // Add validation
+    if (!chart.content || chart.content.trim() === "") {
+      setChartValidationErrors({ [chart.id]: "Content is required for flow charts" })
+      toast({
+        title: "Validation Error",
+        description: "Content is required for flow charts",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
       const updateData = {
         content: chart.content,
@@ -1944,6 +2097,7 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
       // Update local state with the response from API
       setFlowCharts(flowCharts.map((c) => (c.id === chart.id ? updatedChart : c)))
       setEditingChart(null)
+      setChartValidationErrors({}) // Clear errors on success
 
       toast({
         title: "Flow chart updated",
@@ -1951,6 +2105,7 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
       })
     } catch (err) {
       console.error("Failed to update flow chart:", err)
+      setChartValidationErrors({ [chart.id]: err instanceof Error ? err.message : "Failed to update flow chart" })
       toast({
         title: "Failed to update flow chart",
         description: err instanceof Error ? err.message : "Unknown error",
@@ -2229,140 +2384,202 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
                     </TableHeader>
                     <TableBody>
                       {specifications.map((spec) => (
-                        <TableRow key={spec.id}>
-                          <TableCell className="font-medium">
-                            {editingSpec === spec.id ? (
-                              <Input
-                                value={spec.name}
-                                onChange={(e) => {
-                                  const updated = specifications.map((s) =>
-                                    s.id === spec.id ? { ...s, name: e.target.value } : s,
-                                  )
-                                  setSpecifications(updated)
-                                }}
-                                className="h-8"
-                              />
-                            ) : (
-                              spec.name
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editingSpec === spec.id ? (
-                              <Select
-                                value={spec.type}
-                                onValueChange={(value) => {
-                                  const updated = specifications.map((s) =>
-                                    s.id === spec.id ? { ...s, type: value } : s,
-                                  )
-                                  setSpecifications(updated)
-                                }}
-                              >
-                                <SelectTrigger className="h-8">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {availableTypes.length > 0 ? (
-                                    availableTypes.map((type) => (
-                                      <SelectItem key={type} value={type}>
-                                        {type
-                                          .replace(/_/g, " ")
-                                          .toLowerCase()
-                                          .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                      </SelectItem>
-                                    ))
-                                  ) : (
-                                    <>
-                                      <SelectItem value="TEXT">Text</SelectItem>
-                                      <SelectItem value="NUMBER">Number</SelectItem>
-                                      <SelectItem value="BOOLEAN_TYPE">Boolean</SelectItem>
-                                      <SelectItem value="DATE">Date</SelectItem>
-                                    </>
-                                  )}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <span className="capitalize text-sm">{spec.type}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editingSpec === spec.id ? (
-                              <Checkbox
-                                checked={spec.isRequired}
-                                onCheckedChange={(checked) => {
-                                  const updated = specifications.map((s) =>
-                                    s.id === spec.id ? { ...s, isRequired: checked } : s,
-                                  )
-                                  setSpecifications(updated)
-                                }}
-                              />
-                            ) : (
-                              <span className="text-sm">{spec.isRequired ? "Required" : "Optional"}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editingSpec === spec.id ? (
-                              <Checkbox
-                                checked={spec.isActive}
-                                onCheckedChange={(checked) => {
-                                  const updated = specifications.map((s) =>
-                                    s.id === spec.id ? { ...s, isActive: checked } : s,
-                                  )
-                                  setSpecifications(updated)
-                                }}
-                              />
-                            ) : (
-                              <span className="text-sm">{spec.isActive ? "Active" : "Inactive"}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {spec.suggestions && spec.suggestions.length > 0 ? (
-                              <div className="text-sm">{spec.suggestions.join(", ")}</div>
-                            ) : (
-                              <span className="text-muted-foreground">None</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {spec.createdAt ? new Date(spec.createdAt).toLocaleString() : "N/A"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
+                        <>
+                          <TableRow key={spec.id}>
+                            <TableCell className="font-medium">
                               {editingSpec === spec.id ? (
-                                <>
-                                  <Button size="sm" onClick={() => handleUpdateSpecification(spec)} className="h-8">
-                                    Save
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setEditingSpec(null)}
-                                    className="h-8"
-                                  >
-                                    Cancel
-                                  </Button>
-                                </>
+                                <Input
+                                  value={spec.name}
+                                  onChange={(e) => {
+                                    const updated = specifications.map((s) =>
+                                      s.id === spec.id ? { ...s, name: e.target.value } : s,
+                                    )
+                                    setSpecifications(updated)
+                                  }}
+                                  className="h-8"
+                                />
                               ) : (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setEditingSpec(spec.id)}
-                                    className="h-8"
-                                  >
-                                    <Edit className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleRemoveSpecification(spec.id)}
-                                    className="h-8 text-red-500 hover:text-red-700"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </>
+                                spec.name
                               )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                            <TableCell>
+                              {editingSpec === spec.id ? (
+                                <Select
+                                  value={spec.type}
+                                  onValueChange={(value) => {
+                                    const updated = specifications.map((s) =>
+                                      s.id === spec.id ? { ...s, type: value } : s,
+                                    )
+                                    setSpecifications(updated)
+                                  }}
+                                >
+                                  <SelectTrigger className="h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {availableTypes.length > 0 ? (
+                                      availableTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>
+                                          {type
+                                            .replace(/_/g, " ")
+                                            .toLowerCase()
+                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <>
+                                        <SelectItem value="TEXT">Text</SelectItem>
+                                        <SelectItem value="NUMBER">Number</SelectItem>
+                                        <SelectItem value="BOOLEAN_TYPE">Boolean</SelectItem>
+                                        <SelectItem value="DATE">Date</SelectItem>
+                                      </>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <span className="capitalize text-sm">{spec.type}</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {editingSpec === spec.id ? (
+                                <Checkbox
+                                  checked={spec.isRequired}
+                                  onCheckedChange={(checked) => {
+                                    const updated = specifications.map((s) =>
+                                      s.id === spec.id ? { ...s, isRequired: checked } : s,
+                                    )
+                                    setSpecifications(updated)
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-sm">{spec.isRequired ? "Required" : "Optional"}</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {editingSpec === spec.id ? (
+                                <Checkbox
+                                  checked={spec.isActive}
+                                  onCheckedChange={(checked) => {
+                                    const updated = specifications.map((s) =>
+                                      s.id === spec.id ? { ...s, isActive: checked } : s,
+                                    )
+                                    setSpecifications(updated)
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-sm">{spec.isActive ? "Active" : "Inactive"}</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {spec.suggestions && spec.suggestions.length > 0 ? (
+                                <div className="text-sm">{spec.suggestions.join(", ")}</div>
+                              ) : (
+                                <span className="text-muted-foreground">None</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {spec.createdAt ? new Date(spec.createdAt).toLocaleString() : "N/A"}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                {editingSpec === spec.id ? (
+                                  <>
+                                    <Button size="sm" onClick={() => handleUpdateSpecification(spec)} className="h-8">
+                                      Save
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setEditingSpec(null)}
+                                      className="h-8"
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setEditingSpec(spec.id)}
+                                      className="h-8"
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleRemoveSpecification(spec.id)}
+                                      className="h-8 text-red-500 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {editingSpec === spec.id && spec.type === "DROPDOWN" && (
+                            <TableRow>
+                              <TableCell colSpan={7}>
+                                <div className="space-y-2 mt-2 p-4 bg-gray-50 rounded-md">
+                                  <Label className="text-sm font-medium">Options</Label>
+                                  <div className="space-y-2">
+                                    {spec.suggestions?.map((option: string, index: number) => (
+                                      <div key={index} className="flex items-center gap-2">
+                                        <Input
+                                          value={option}
+                                          onChange={(e) => {
+                                            const newOptions = [...(spec.suggestions || [])]
+                                            newOptions[index] = e.target.value
+                                            const updated = specifications.map((s) =>
+                                              s.id === spec.id ? { ...s, suggestions: newOptions } : s,
+                                            )
+                                            setSpecifications(updated)
+                                          }}
+                                          placeholder="Enter option"
+                                          className="h-8"
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => {
+                                            const newOptions =
+                                              spec.suggestions?.filter((_: any, i: number) => i !== index) || []
+                                            const updated = specifications.map((s) =>
+                                              s.id === spec.id ? { ...s, suggestions: newOptions } : s,
+                                            )
+                                            setSpecifications(updated)
+                                          }}
+                                          className="h-8 w-8 p-0"
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        const newOptions = [...(spec.suggestions || []), ""]
+                                        const updated = specifications.map((s) =>
+                                          s.id === spec.id ? { ...s, suggestions: newOptions } : s,
+                                        )
+                                        setSpecifications(updated)
+                                      }}
+                                      className="h-8"
+                                    >
+                                      <Plus className="h-3 w-3 mr-1" />
+                                      Add Option
+                                    </Button>
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </>
                       ))}
                     </TableBody>
                   </Table>
@@ -2370,7 +2587,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
               </CardContent>
             </Card>
 
-            {/* Add New Specification */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Add New Specification</CardTitle>
@@ -2417,12 +2633,63 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
                             <SelectItem value="NUMBER">Number</SelectItem>
                             <SelectItem value="BOOLEAN_TYPE">Boolean</SelectItem>
                             <SelectItem value="DATE">Date</SelectItem>
+                            <SelectItem value="DROPDOWN">Dropdown</SelectItem>
                           </>
                         )}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
+
+                {newSpecification.type === "DROPDOWN" && (
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="specOptions" className="text-sm font-medium">
+                      Options
+                    </Label>
+                    <div className="space-y-2">
+                      {newSpecification.suggestions?.map((option: string, index: number) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            value={option}
+                            onChange={(e) => {
+                              const newOptions = [...(newSpecification.suggestions || [])]
+                              newOptions[index] = e.target.value
+                              setNewSpecification({ ...newSpecification, suggestions: newOptions })
+                            }}
+                            placeholder="Enter option"
+                            className="h-9"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newOptions =
+                                newSpecification.suggestions?.filter((_: any, i: number) => i !== index) || []
+                              setNewSpecification({ ...newSpecification, suggestions: newOptions })
+                            }}
+                            className="h-9 w-9 p-0"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newOptions = [...(newSpecification.suggestions || []), ""]
+                          setNewSpecification({ ...newSpecification, suggestions: newOptions })
+                        }}
+                        className="h-9"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Option
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-6">
                   <div className="flex items-center space-x-2">
@@ -2466,7 +2733,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Technical Specifications</h3>
             </div>
 
-            {/* Current Technical Specifications */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Current Technical Specifications ({technicalSpecs.length})</CardTitle>
@@ -2564,7 +2830,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
               </CardContent>
             </Card>
 
-            {/* Add New Technical Specification */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Add New Technical Specification</CardTitle>
@@ -2612,7 +2877,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Documentation</h3>
             </div>
 
-            {/* Existing documentation table */}
             <div className="space-y-4">
               <h4 className="text-md font-medium">Current Documentation</h4>
               {documentation.length === 0 ? (
@@ -2631,17 +2895,26 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
                       <TableRow key={doc.id}>
                         <TableCell>
                           {editingDoc === doc.id ? (
-                            <Textarea
-                              value={doc.content}
-                              onChange={(e) => {
-                                const updated = documentation.map((d) =>
-                                  d.id === doc.id ? { ...d, content: e.target.value } : d,
-                                )
-                                setDocumentation(updated)
-                              }}
-                              rows={2}
-                              className="resize-none"
-                            />
+                            <div className="space-y-2">
+                              <Textarea
+                                value={doc.content}
+                                onChange={(e) => {
+                                  const updated = documentation.map((d) =>
+                                    d.id === doc.id ? { ...d, content: e.target.value } : d,
+                                  )
+                                  setDocumentation(updated)
+                                  // Clear error when user starts typing
+                                  if (docValidationErrors[doc.id]) {
+                                    setDocValidationErrors({ ...docValidationErrors, [doc.id]: "" })
+                                  }
+                                }}
+                                rows={2}
+                                className={`resize-none ${docValidationErrors[doc.id] ? "border-red-500" : ""}`}
+                              />
+                              {docValidationErrors[doc.id] && (
+                                <p className="text-sm text-red-500">{docValidationErrors[doc.id]}</p>
+                              )}
+                            </div>
                           ) : (
                             <div className="max-w-xs truncate">{doc.content}</div>
                           )}
@@ -2706,7 +2979,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
               )}
             </div>
 
-            {/* Add new documentation */}
             <div className="border rounded-md p-4 space-y-4 mt-6">
               <h4 className="text-md font-medium">Add New Documentation</h4>
               <div className="space-y-4">
@@ -2747,11 +3019,10 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
 
           <TabsContent value="flowcharts" className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <FlowChart className="h-5 w-5 text-green-500" />
+              <GitBranch className="h-5 w-5 text-green-500" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Flow Charts</h3>
             </div>
 
-            {/* Existing flow charts table */}
             <div className="space-y-4">
               <h4 className="text-md font-medium">Current Flow Charts</h4>
               {flowCharts.length === 0 ? (
@@ -2770,17 +3041,26 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
                       <TableRow key={chart.id}>
                         <TableCell>
                           {editingChart === chart.id ? (
-                            <Textarea
-                              value={chart.content}
-                              onChange={(e) => {
-                                const updated = flowCharts.map((c) =>
-                                  c.id === chart.id ? { ...c, content: e.target.value } : c,
-                                )
-                                setFlowCharts(updated)
-                              }}
-                              rows={2}
-                              className="resize-none"
-                            />
+                            <div className="space-y-2">
+                              <Textarea
+                                value={chart.content}
+                                onChange={(e) => {
+                                  const updated = flowCharts.map((c) =>
+                                    c.id === chart.id ? { ...c, content: e.target.value } : c,
+                                  )
+                                  setFlowCharts(updated)
+                                  // Clear error when user starts typing
+                                  if (chartValidationErrors[chart.id]) {
+                                    setChartValidationErrors({ ...chartValidationErrors, [chart.id]: "" })
+                                  }
+                                }}
+                                rows={2}
+                                className={`resize-none ${chartValidationErrors[chart.id] ? "border-red-500" : ""}`}
+                              />
+                              {chartValidationErrors[chart.id] && (
+                                <p className="text-sm text-red-500">{chartValidationErrors[chart.id]}</p>
+                              )}
+                            </div>
                           ) : (
                             <div className="max-w-xs truncate">{chart.content}</div>
                           )}
@@ -2850,7 +3130,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
               )}
             </div>
 
-            {/* Add new flow chart */}
             <div className="border rounded-md p-4 space-y-4 mt-6">
               <h4 className="text-md font-medium">Add New Flow Chart</h4>
               <div className="space-y-4">
@@ -2891,7 +3170,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
         </Tabs>
 
         <div className="flex justify-between items-center gap-3 pt-4 border-t">
-          {/* Left side - Cancel button */}
           <Button
             type="button"
             variant="outline"
@@ -2902,8 +3180,6 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Cancel
           </Button>
-
-          {/* Right side - Save button */}
           <Button
             type="submit"
             disabled={isSubmitting}
@@ -2918,4 +3194,3 @@ export default function EditStationForm({ stationId }: EditStationFormProps) {
     </div>
   )
 }
-
