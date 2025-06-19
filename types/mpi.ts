@@ -17,6 +17,8 @@ export interface EnumsResponse {
 
 // MPI types
 export interface Mpi {
+  applicableJobId: any
+  status: string
   id: string
   name: string
   revision: string
@@ -163,6 +165,7 @@ export interface DocumentControl {
 
 // Checklist types
 export interface Checklist {
+  remarks: any
   id: string
   description: string
   section: string
