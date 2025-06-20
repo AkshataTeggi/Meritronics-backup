@@ -1,7 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { changeOrderApi, type ChangeOrderEnums } from "@/lib/change-order"
+
+export interface ChangeOrderEnums {
+  orderTypes: string[]
+  locationTypes: string[]
+  attachmentTypes: string[]
+  documentAttachments: string[]
+  fileActions: string[]
+}
 
 export function useChangeOrderEnums() {
   const [enums, setEnums] = useState<ChangeOrderEnums | null>(null)
@@ -13,7 +20,13 @@ export function useChangeOrderEnums() {
       try {
         setLoading(true)
         setError(null)
-        const enumsData = await changeOrderApi.getEnums()
+        const response = await fetch("http://192.168.0.130:3000/change-orders/enums")
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch enums: ${response.status}`)
+        }
+
+        const enumsData = await response.json()
         setEnums(enumsData)
       } catch (err) {
         console.error("Error fetching change order enums:", err)
@@ -31,15 +44,15 @@ export function useChangeOrderEnums() {
     if (!enums?.orderTypes) return []
     return enums.orderTypes.map((type) => ({
       value: type,
-      label: formatEnumLabel(String(type)),
+      label: formatEnumLabel(type),
     }))
   }
 
   const getLocationOptions = () => {
-    if (!enums?.locations) return []
-    return enums.locations.map((location) => ({
+    if (!enums?.locationTypes) return []
+    return enums.locationTypes.map((location) => ({
       value: location,
-      label: location,
+      label: formatEnumLabel(location),
     }))
   }
 
@@ -55,7 +68,7 @@ export function useChangeOrderEnums() {
     if (!enums?.fileActions) return []
     return enums.fileActions.map((action) => ({
       value: action,
-      label: formatEnumLabel(String(action)),
+      label: formatEnumLabel(action),
     }))
   }
 
@@ -68,19 +81,16 @@ export function useChangeOrderEnums() {
   }
 
   // Helper function to format enum values for display
-  const formatEnumLabel = (value: string | number) => {
-    return String(value)
+  const formatEnumLabel = (value: string) => {
+    return value
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ")
   }
 
-  const getLocationTypeOptions = () => {
-    if (!enums?.locationTypes) return []
-    return enums.locationTypes.map((location) => ({
-      value: location,
-      label: formatEnumLabel(location),
-    }))
+  // Helper function to get formatted label for a specific enum value
+  const getFormattedLabel = (enumType: keyof ChangeOrderEnums, value: string) => {
+    return formatEnumLabel(value)
   }
 
   return {
@@ -89,9 +99,10 @@ export function useChangeOrderEnums() {
     error,
     getOrderTypeOptions,
     getLocationOptions,
-    getLocationTypeOptions,
     getAttachmentTypeOptions,
     getFileActionOptions,
     getDocumentAttachmentOptions,
+    getFormattedLabel,
+    formatEnumLabel,
   }
 }
