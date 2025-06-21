@@ -159,21 +159,8 @@ export function CreateMpiWizard() {
         </Button>
       </div>
 
-      {/* Progress */}
-      <Card className="mb-4">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>
-                Step {currentStep} of {STEPS.length}
-              </CardTitle>
-              <CardDescription>{currentStepData?.title}</CardDescription>
-            </div>
-            <Badge variant="outline">{Math.round(progress)}% Complete</Badge>
-          </div>
-          <Progress value={progress} className="w-full mt-4" />
-        </CardHeader>
-      </Card>
+
+
 
       {/* Stepper */}
       <Card className="mb-4">
